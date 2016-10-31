@@ -7,6 +7,9 @@ import (
 	"strings"
 )
 
+// Query builds query from struct.
+// Param names are detected from "json" struct tags.
+// Slices are serialized as comma-separated strings.
 func Query(d interface{}) url.Values {
 	rv := reflect.ValueOf(d)
 	rt := rv.Type()
