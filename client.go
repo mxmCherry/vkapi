@@ -13,6 +13,8 @@ type Options struct {
 }
 
 type Client interface {
+	// Exec calls vk.com API method.
+	// It accepts method name, query params and pointer to response object to unmarshal "response" field into it.
 	Exec(method string, query url.Values, response interface{}) error
 }
 
