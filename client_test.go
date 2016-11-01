@@ -1,21 +1,21 @@
-package vkapi
+package vkapi_test
 
 import (
 	"net/http"
 	"net/url"
+
+	"github.com/mxmCherry/vkapi"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Client", func() {
-	var subject Client
+	var httpClient *mockHTTPClient
+	var subject vkapi.Client
 
 	BeforeEach(func() {
-		subject = New(Options{
-			AccessToken: "dummy_token",
-		})
-		subject.(*client).http = &mockHttpClient{
+		httpClient = &mockHTTPClient{
 			code: http.StatusNotFound,
 			body: `{
 				"error": {
@@ -24,11 +24,14 @@ var _ = Describe("Client", func() {
 				}
 			}`,
 		}
+		subject = vkapi.From(httpClient, vkapi.Options{
+			AccessToken: "dummy_token",
+		})
 	})
 
 	It("should exec", func() {
-		subject.(*client).http.(*mockHttpClient).code = http.StatusOK
-		subject.(*client).http.(*mockHttpClient).body = `{
+		httpClient.code = http.StatusOK
+		httpClient.body = `{
 			"response": {
 				"count": 1,
 				"items": [
@@ -41,6 +44,10 @@ var _ = Describe("Client", func() {
 			}
 		}`
 
+		query := url.Values{
+			"q": []string{"FirstName LastName"},
+		}
+
 		response := new(struct {
 			Count uint64 `json:"count"`
 			Items []struct {
@@ -50,14 +57,10 @@ var _ = Describe("Client", func() {
 			} `json:"items"`
 		})
 
-		query := url.Values{
-			"q": []string{"FirstName LastName"},
-		}
-
 		err := subject.Exec("dummy.users.search", query, response)
 		Expect(err).NotTo(HaveOccurred())
 
-		Expect(subject.(*client).http.(*mockHttpClient).url).To(Equal(
+		Expect(httpClient.url).To(Equal(
 			"https://api.vk.com/method/dummy.users.search?access_token=dummy_token&q=FirstName+LastName&v=5.59",
 		))
 
@@ -69,8 +72,8 @@ var _ = Describe("Client", func() {
 	})
 
 	It("should return vk errors", func() {
-		subject.(*client).http.(*mockHttpClient).code = http.StatusOK
-		subject.(*client).http.(*mockHttpClient).body = `{
+		httpClient.code = http.StatusOK
+		httpClient.body = `{
 			"error": {
 				"error_code": 42,
 				"error_msg": "ErrorMsg"

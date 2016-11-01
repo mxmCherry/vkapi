@@ -1,7 +1,9 @@
-package vkapi
+package vkapi_test
 
 import (
 	"net/url"
+
+	"github.com/mxmCherry/vkapi"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -20,7 +22,7 @@ var _ = Describe("Query", func() {
 			Repeated: []uint64{1, 2, 3},
 			Empty:    "",
 		}
-		Expect(Query(d)).To(Equal(url.Values{
+		Expect(vkapi.Query(d)).To(Equal(url.Values{
 			"string_param":   []string{"string_value"},
 			"number_param":   []string{"42"},
 			"repeated_param": []string{"1,2,3"},

@@ -8,6 +8,7 @@ import (
 )
 
 // Query builds query from struct.
+// It returns nil query unless arg is not a struct.
 // Param names are detected from "json" struct tags.
 // Slices are serialized as comma-separated strings.
 func Query(d interface{}) url.Values {
