@@ -6,7 +6,7 @@ import (
 	"github.com/mxmCherry/vkapi"
 )
 
-func ExampleQuery() {
+func ExampleToParams() {
 	type UsersGetRequest struct {
 		UserIDs  []uint64 `json:"user_ids,omitempty"`
 		Fields   []string `json:"fields,omitempty"`
@@ -19,8 +19,8 @@ func ExampleQuery() {
 		NameCase: "nom",
 	}
 
-	query := vkapi.Query(request)
+	params := vkapi.ToParams(request)
 
-	fmt.Println(query.Encode())
+	fmt.Println(params.Encode())
 	// Output: fields=first_name%2Clast_name%2Cscreen_name&name_case=nom&user_ids=111%2C222%2C333
 }

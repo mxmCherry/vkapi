@@ -44,7 +44,7 @@ var _ = Describe("Client", func() {
 			}
 		}`
 
-		query := url.Values{
+		params := url.Values{
 			"q": []string{"FirstName LastName"},
 		}
 
@@ -57,12 +57,15 @@ var _ = Describe("Client", func() {
 			} `json:"items"`
 		})
 
-		err := subject.Exec("dummy.users.search", query, response)
+		err := subject.Exec("dummy.users.search", params, response)
 		Expect(err).NotTo(HaveOccurred())
 
-		Expect(httpClient.url).To(Equal(
-			"https://api.vk.com/method/dummy.users.search?access_token=dummy_token&q=FirstName+LastName&v=5.59",
-		))
+		Expect(httpClient.url).To(Equal("https://api.vk.com/method/dummy.users.search"))
+		Expect(httpClient.form).To(Equal(url.Values{
+			"q":            []string{"FirstName LastName"},
+			"access_token": []string{"dummy_token"},
+			"v":            []string{"5.59"},
+		}))
 
 		Expect(response.Count).To(Equal(uint64(1)))
 		Expect(response.Items).To(HaveLen(1))

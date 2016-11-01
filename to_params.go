@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-// Query builds query from struct.
-// It returns nil query unless arg is not a struct.
+// ToParams builds request params from struct.
+// It returns nil params unless arg is not a struct.
 // Param names are detected from "json" struct tags.
 // Slices are serialized as comma-separated strings.
-func Query(d interface{}) url.Values {
+func ToParams(d interface{}) url.Values {
 	rv := reflect.ValueOf(d)
 	rt := rv.Type()
 	if rt.Kind() != reflect.Struct {

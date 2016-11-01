@@ -2,6 +2,7 @@ package vkapi_test
 
 import (
 	"net/http"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -21,10 +22,12 @@ type mockHTTPClient struct {
 	body string
 	err  error
 	url  string
+	form url.Values
 }
 
-func (c *mockHTTPClient) Get(url string) (*http.Response, error) {
+func (c *mockHTTPClient) PostForm(url string, form url.Values) (*http.Response, error) {
 	c.url = url
+	c.form = form
 	return &http.Response{
 		StatusCode: c.code,
 		Body: mockReadCloser{

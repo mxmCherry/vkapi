@@ -16,7 +16,7 @@ type Client interface {
 	//   {
 	//     "response": {this data will be unmarshalled into response arg}
 	//   }
-	Exec(method string, query url.Values, response interface{}) error
+	Exec(method string, params url.Values, response interface{}) error
 }
 
 // Options hold configuration data for Client.
@@ -27,7 +27,7 @@ type Options struct {
 
 // HTTPClient abstracts HTTP client.
 type HTTPClient interface {
-	Get(string) (*http.Response, error)
+	PostForm(string, url.Values) (*http.Response, error)
 }
 
 // New creates new Client with default HTTP client.
@@ -58,21 +58,20 @@ type client struct {
 	http    HTTPClient
 }
 
-func (c *client) Exec(method string, query url.Values, response interface{}) error {
-	if query == nil {
-		query = url.Values{}
+func (c *client) Exec(method string, params url.Values, response interface{}) error {
+	if params == nil {
+		params = url.Values{}
 	}
 	if c.options.AccessToken != "" {
-		query.Set("access_token", c.options.AccessToken)
+		params.Set("access_token", c.options.AccessToken)
 	}
-	query.Set("v", version)
+	params.Set("v", version)
 
-	resp, err := c.http.Get((&url.URL{
-		Scheme:   scheme,
-		Host:     host,
-		Path:     path.Join(prefix, method),
-		RawQuery: query.Encode(),
-	}).String())
+	resp, err := c.http.PostForm((&url.URL{
+		Scheme: scheme,
+		Host:   host,
+		Path:   path.Join(prefix, method),
+	}).String(), params)
 	if err != nil {
 		return err
 	}
