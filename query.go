@@ -40,7 +40,7 @@ func Query(d interface{}) url.Values {
 			}
 		}
 
-		if omitempty && vi == reflect.Zero(f.Type).Interface() {
+		if omitempty && reflect.DeepEqual(vi, reflect.Zero(f.Type).Interface()) {
 			continue
 		}
 
