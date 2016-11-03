@@ -79,12 +79,15 @@ var _ = Describe("Client", func() {
 		httpClient.body = `{
 			"error": {
 				"error_code": 42,
-				"error_msg": "ErrorMsg"
+				"error_msg": "Test error"
 			}
 		}`
 
 		err := subject.Exec("", nil, nil)
-		Expect(err).To(MatchError("vkapi: ErrorMsg (code 42)"))
+		Expect(err).To(Equal(vkapi.Error{
+			ErrorCode: 42,
+			ErrorMsg:  "Test error",
+		}))
 	})
 
 })

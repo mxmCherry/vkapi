@@ -2,7 +2,6 @@ package vkapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 	"path"
@@ -78,10 +77,7 @@ func (c *client) Exec(method string, params url.Values, response interface{}) er
 	defer resp.Body.Close()
 
 	wrapper := &struct {
-		Error *struct {
-			ErrorCode uint64 `json:"error_code"`
-			ErrorMsg  string `json:"error_msg"`
-		} `json:"error,omitempty"`
+		Error    *Error      `json:"error,omitempty"`
 		Response interface{} `json:"response"`
 	}{
 		Response: response,
@@ -91,7 +87,7 @@ func (c *client) Exec(method string, params url.Values, response interface{}) er
 	}
 
 	if wrapper.Error != nil {
-		return fmt.Errorf("vkapi: %s (code %d)", wrapper.Error.ErrorMsg, wrapper.Error.ErrorCode)
+		return *wrapper.Error
 	}
 	return nil
 }
