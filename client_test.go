@@ -26,6 +26,7 @@ var _ = Describe("Client", func() {
 		}
 		subject = vkapi.From(httpClient, vkapi.Options{
 			AccessToken: "dummy_token",
+			Version:     "42.42",
 		})
 	})
 
@@ -64,7 +65,7 @@ var _ = Describe("Client", func() {
 		Expect(httpClient.form).To(Equal(url.Values{
 			"q":            []string{"FirstName LastName"},
 			"access_token": []string{"dummy_token"},
-			"v":            []string{"5.59"},
+			"v":            []string{"42.42"},
 		}))
 
 		Expect(response.Count).To(Equal(uint64(1)))

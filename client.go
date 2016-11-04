@@ -7,6 +7,9 @@ import (
 	"path"
 )
 
+// DefaultVersion specifies default vk.com API version to use: https://vk.com/dev/versions
+const DefaultVersion = "5.60"
+
 // Client abstracts vk.com API client: https://vk.com/dev/api_requests
 type Client interface {
 	// Exec calls vk.com API method: https://vk.com/dev/methods
@@ -22,6 +25,9 @@ type Client interface {
 type Options struct {
 	// AccessToken holds vk.com API access token (optional): https://vk.com/dev/access_token
 	AccessToken string
+	// Version holds used vk.com API version: https://vk.com/dev/versions
+	// Uses DefaultVersion if omited.
+	Version string
 }
 
 // HTTPClient abstracts HTTP client.
@@ -37,6 +43,9 @@ func New(options Options) Client {
 // From creates new Client from custom (preconfigured) HTTP client.
 // It may be used, for example, if proxy support is needed.
 func From(httpClient HTTPClient, options Options) Client {
+	if options.Version == "" {
+		options.Version = DefaultVersion
+	}
 	return &client{
 		options: options,
 		http:    httpClient,
@@ -46,10 +55,9 @@ func From(httpClient HTTPClient, options Options) Client {
 // ----------------------------------------------------------------------------
 
 const (
-	scheme  = "https"
-	host    = "api.vk.com"
-	prefix  = "/method/"
-	version = "5.59"
+	scheme = "https"
+	host   = "api.vk.com"
+	prefix = "/method/"
 )
 
 type client struct {
@@ -64,7 +72,7 @@ func (c *client) Exec(method string, params url.Values, response interface{}) er
 	if c.options.AccessToken != "" {
 		params.Set("access_token", c.options.AccessToken)
 	}
-	params.Set("v", version)
+	params.Set("v", c.options.Version)
 
 	resp, err := c.http.PostForm((&url.URL{
 		Scheme: scheme,
