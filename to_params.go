@@ -50,8 +50,6 @@ func ToParams(d interface{}) url.Values {
 			continue
 		}
 
-		vi := v.Interface()
-
 		name := ""
 		omitempty := false
 
@@ -73,11 +71,11 @@ func ToParams(d interface{}) url.Values {
 			name = strings.ToLower(f.Name)
 		}
 
-		if omitempty && isEmpty(vi) {
+		if omitempty && isEmpty(v) {
 			continue
 		}
 
-		q.Set(name, toString(vi))
+		q.Set(name, toString(v))
 	}
 
 	return q
@@ -92,12 +90,14 @@ func dereference(rv reflect.Value) reflect.Value {
 }
 
 // toString stringifies value.
-func toString(v interface{}) string {
-	if v == nil {
+func toString(rv reflect.Value) string {
+	rv = dereference(rv)
+	if isEmpty(rv) {
 		return ""
 	}
 
-	switch x := v.(type) {
+	vi := rv.Interface()
+	switch x := vi.(type) {
 
 	case bool:
 		if x {
@@ -109,22 +109,21 @@ func toString(v interface{}) string {
 		return string(x)
 
 	default:
-		if rv := reflect.ValueOf(v); rv.Kind() == reflect.Slice {
+		if rv.Kind() == reflect.Slice {
 			n := rv.Len()
 			ss := make([]string, n)
 			for j := 0; j < n; j++ {
-				ss[j] = toString(dereference(rv.Index(j)).Interface())
+				ss[j] = toString(dereference(rv.Index(j)))
 			}
 			return strings.Join(ss, ",")
 		}
-		return fmt.Sprintf("%v", v)
+		return fmt.Sprintf("%v", vi)
 
 	}
 }
 
 // isEmpty tells if value is empty.
-func isEmpty(v interface{}) bool {
-	rv := reflect.ValueOf(v)
+func isEmpty(rv reflect.Value) bool {
 	if !rv.IsValid() {
 		return true
 	}
@@ -134,5 +133,5 @@ func isEmpty(v interface{}) bool {
 		return false
 	}
 
-	return reflect.DeepEqual(v, zero.Interface())
+	return reflect.DeepEqual(rv.Interface(), zero.Interface())
 }
