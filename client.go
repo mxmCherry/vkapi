@@ -65,6 +65,11 @@ const (
 	prefix = "/method/"
 )
 
+type responseWrapper struct {
+	Error    *Error      `json:"error,omitempty"`
+	Response interface{} `json:"response,omitempty"`
+}
+
 type client struct {
 	options Options
 	http    HTTPClient
@@ -79,26 +84,22 @@ func (c *client) Exec(method string, params url.Values, response interface{}) er
 	}
 	params.Set("v", c.options.Version)
 
-	urlObj := urlPool.Get().(*url.URL)
-	urlObj.Scheme = scheme
-	urlObj.Host = host
-	urlObj.Path = path.Join(prefix, method)
-	urlStr := urlObj.String()
-	*urlObj = url.URL{}
-	urlPool.Put(urlObj)
+	url := urlPool.Get()
+	url.Scheme = scheme
+	url.Host = host
+	url.Path = path.Join(prefix, method)
+	defer urlPool.Put(url)
 
-	resp, err := c.http.PostForm(urlStr, params)
+	resp, err := c.http.PostForm(url.String(), params)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
-	wrapper := &struct {
-		Error    *Error      `json:"error,omitempty"`
-		Response interface{} `json:"response"`
-	}{
-		Response: response,
-	}
+	wrapper := responseWrapperPool.Get()
+	wrapper.Response = response
+	defer responseWrapperPool.Put(wrapper)
+
 	if err := json.NewDecoder(resp.Body).Decode(wrapper); err != nil {
 		return err
 	}
