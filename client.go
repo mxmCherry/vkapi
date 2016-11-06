@@ -79,11 +79,15 @@ func (c *client) Exec(method string, params url.Values, response interface{}) er
 	}
 	params.Set("v", c.options.Version)
 
-	resp, err := c.http.PostForm((&url.URL{
-		Scheme: scheme,
-		Host:   host,
-		Path:   path.Join(prefix, method),
-	}).String(), params)
+	urlObj := urlPool.Get().(*url.URL)
+	urlObj.Scheme = scheme
+	urlObj.Host = host
+	urlObj.Path = path.Join(prefix, method)
+	urlStr := urlObj.String()
+	*urlObj = url.URL{}
+	urlPool.Put(urlObj)
+
+	resp, err := c.http.PostForm(urlStr, params)
 	if err != nil {
 		return err
 	}
