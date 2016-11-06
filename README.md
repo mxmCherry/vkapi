@@ -1,4 +1,4 @@
-# vkapi [![GoDoc](https://godoc.org/github.com/mxmCherry/vkapi?status.svg)](https://godoc.org/github.com/mxmCherry/vkapi)
+# vkapi [![GoDoc](https://godoc.org/github.com/mxmCherry/vkapi?status.svg)](https://godoc.org/github.com/mxmCherry/vkapi) [![Go Report Card](https://goreportcard.com/badge/github.com/mxmCherry/vkapi)](https://goreportcard.com/report/github.com/mxmCherry/vkapi)
 
 Low-level Go (Golang) vk.com API client
 
