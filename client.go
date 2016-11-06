@@ -7,12 +7,15 @@ import (
 	"path"
 )
 
-// DefaultVersion specifies default vk.com API version to use: https://vk.com/dev/versions
+// DefaultVersion specifies default vk.com API version to use:
+// https://vk.com/dev/versions
 const DefaultVersion = "5.60"
 
-// Client abstracts vk.com API client: https://vk.com/dev/api_requests
+// Client represents vk.com API client:
+// https://vk.com/dev/api_requests
 type Client interface {
-	// Exec calls vk.com API method: https://vk.com/dev/methods
+	// Exec calls vk.com API method:
+	// https://vk.com/dev/methods
 	//
 	// Response arg must be a pointer to unmarshal "response" field:
 	//   {
@@ -23,9 +26,11 @@ type Client interface {
 
 // Options hold configuration data for Client.
 type Options struct {
-	// AccessToken holds vk.com API access token (optional): https://vk.com/dev/access_token
+	// AccessToken holds vk.com API access token (optional):
+	// https://vk.com/dev/access_token
 	AccessToken string
-	// Version holds used vk.com API version: https://vk.com/dev/versions
+	// Version holds used vk.com API version:
+	// https://vk.com/dev/versions
 	// Uses DefaultVersion if omited.
 	Version string
 }
