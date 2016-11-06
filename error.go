@@ -17,7 +17,6 @@ func (err Error) Error() string {
 	if err.CaptchaSID != "" {
 		return fmt.Sprintf("vkapi: %s (%d); captcha_sid: %s, captcha_img: %s",
 			err.ErrorMsg, err.ErrorCode, err.CaptchaSID, err.CaptchaImg)
-	} else {
-		return fmt.Sprintf("vkapi: %s (%d)", err.ErrorMsg, err.ErrorCode)
 	}
+	return fmt.Sprintf("vkapi: %s (%d)", err.ErrorMsg, err.ErrorCode)
 }

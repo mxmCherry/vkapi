@@ -13,8 +13,8 @@ import (
 // Param names are detected from "json" struct tags,
 // "-" tag (omit field) and "omitempty" modifier are respected.
 //
-// Nil values are always omited (even without "omitempty").
-// Chan, func, interface, map and complex values are also omited.
+// Nil values are always omitted (even without "omitempty").
+// Chan, func, interface, map and complex values are also omitted.
 //
 // Slices are serialized as comma-separated strings.
 //

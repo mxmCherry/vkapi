@@ -31,7 +31,7 @@ type Options struct {
 	AccessToken string
 	// Version holds used vk.com API version:
 	// https://vk.com/dev/versions
-	// Uses DefaultVersion if omited.
+	// Uses DefaultVersion if omitted.
 	Version string
 }
 

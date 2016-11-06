@@ -26,11 +26,11 @@ func newURLPooler() urlPooler {
 	}
 }
 
-func (p urlPooler) Get() *url.URL {
+func (p *urlPooler) Get() *url.URL {
 	return p.pool.Get().(*url.URL)
 }
 
-func (p urlPooler) Put(u *url.URL) {
+func (p *urlPooler) Put(u *url.URL) {
 	*u = url.URL{}
 	p.pool.Put(u)
 }
@@ -51,11 +51,11 @@ func newResponseWrapperPooler() responseWrapperPooler {
 	}
 }
 
-func (p responseWrapperPooler) Get() *responseWrapper {
+func (p *responseWrapperPooler) Get() *responseWrapper {
 	return p.pool.Get().(*responseWrapper)
 }
 
-func (p responseWrapperPooler) Put(w *responseWrapper) {
+func (p *responseWrapperPooler) Put(w *responseWrapper) {
 	*w = responseWrapper{}
 	p.pool.Put(w)
 }
