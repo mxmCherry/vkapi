@@ -36,6 +36,7 @@ func main() {
 	// instantiate API client:
 	vk := vkapi.New(vkapi.Options{
 		AccessToken: "YOUR_ACCESS_TOKEN", // https://vk.com/dev/access_token
+		Version:     "5.62",              // https://vk.com/dev/versions
 	})
 
 	// prepare API request params:

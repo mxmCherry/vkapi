@@ -7,10 +7,6 @@ import (
 	"path"
 )
 
-// DefaultVersion specifies default vk.com API version to use:
-// https://vk.com/dev/versions
-const DefaultVersion = "5.60"
-
 // Client represents vk.com API client:
 // https://vk.com/dev/api_requests
 type Client interface {
@@ -29,9 +25,8 @@ type Options struct {
 	// AccessToken holds vk.com API access token (optional):
 	// https://vk.com/dev/access_token
 	AccessToken string
-	// Version holds used vk.com API version:
+	// Version holds used vk.com API version (strongly recommended):
 	// https://vk.com/dev/versions
-	// Uses DefaultVersion if omitted.
 	Version string
 }
 
@@ -48,9 +43,6 @@ func New(options Options) Client {
 // From creates new Client from custom (preconfigured) HTTP client.
 // It may be used, for example, if proxy support is needed.
 func From(httpClient HTTPClient, options Options) Client {
-	if options.Version == "" {
-		options.Version = DefaultVersion
-	}
 	return &client{
 		options: options,
 		http:    httpClient,
