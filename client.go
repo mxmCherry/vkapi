@@ -37,7 +37,7 @@ type HTTPClient interface {
 
 // New creates new Client with default HTTP client.
 func New(options Options) Client {
-	return From(new(http.Client), options)
+	return From(http.DefaultClient, options)
 }
 
 // From creates new Client from custom (preconfigured) HTTP client.
