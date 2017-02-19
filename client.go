@@ -17,6 +17,8 @@ type Client interface {
 	//   {
 	//     "response": {this data will be unmarshalled into response arg}
 	//   }
+	//
+	// Nil response arg may be passed to discard response data.
 	Exec(method string, params url.Values, response interface{}) error
 }
 
@@ -69,12 +71,14 @@ type client struct {
 
 func (c *client) Exec(method string, params url.Values, response interface{}) error {
 	if params == nil {
-		params = url.Values{}
+		params = make(url.Values, 2)
 	}
-	if c.options.AccessToken != "" {
+	if _, isSet := params["access_token"]; !isSet && c.options.AccessToken != "" {
 		params.Set("access_token", c.options.AccessToken)
 	}
-	params.Set("v", c.options.Version)
+	if _, isSet := params["v"]; !isSet && c.options.Version != "" {
+		params.Set("v", c.options.Version)
+	}
 
 	url := urlPool.Get()
 	url.Scheme = scheme
