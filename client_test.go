@@ -12,7 +12,7 @@ import (
 
 var _ = Describe("Client", func() {
 	var httpClient *mockHTTPClient
-	var subject vkapi.Client
+	var subject *vkapi.Client
 
 	BeforeEach(func() {
 		httpClient = &mockHTTPClient{}

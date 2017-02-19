@@ -7,19 +7,11 @@ import (
 	"path"
 )
 
-// Client represents vk.com API client:
+// Client is a vk.com API client:
 // https://vk.com/dev/api_requests
-type Client interface {
-	// Exec calls vk.com API method:
-	// https://vk.com/dev/methods
-	//
-	// Response arg must be a pointer to unmarshal "response" field:
-	//   {
-	//     "response": {this data will be unmarshalled into response arg}
-	//   }
-	//
-	// Nil response arg may be passed to discard response data.
-	Exec(method string, params url.Values, response interface{}) error
+type Client struct {
+	options Options
+	http    HTTPClient
 }
 
 // Options hold configuration data for Client.
@@ -38,14 +30,14 @@ type HTTPClient interface {
 }
 
 // New creates new Client with default HTTP client.
-func New(options Options) Client {
+func New(options Options) *Client {
 	return From(http.DefaultClient, options)
 }
 
 // From creates new Client from custom (preconfigured) HTTP client.
 // It may be used, for example, if proxy support is needed.
-func From(httpClient HTTPClient, options Options) Client {
-	return &client{
+func From(httpClient HTTPClient, options Options) *Client {
+	return &Client{
 		options: options,
 		http:    httpClient,
 	}
@@ -64,12 +56,16 @@ type responseWrapper struct {
 	Response interface{} `json:"response,omitempty"`
 }
 
-type client struct {
-	options Options
-	http    HTTPClient
-}
-
-func (c *client) Exec(method string, params url.Values, response interface{}) error {
+// Exec calls vk.com API method:
+// https://vk.com/dev/methods
+//
+// Response arg must be a pointer to unmarshal "response" field:
+//   {
+//     "response": {this data will be unmarshalled into response arg}
+//   }
+//
+// Nil response arg may be passed to discard response data.
+func (c *Client) Exec(method string, params url.Values, response interface{}) error {
 	if params == nil {
 		params = make(url.Values, 2)
 	}
