@@ -62,13 +62,13 @@ type responseWrapper struct {
 // Request arg should be either net/url.Values, map with simple keys (strings/numbers) or struct.
 // Other types are silently ignored.
 //
-// Structs are interpreted using the following rules:
+// Structs/maps are converted to request params using the following rules:
 //
 // - param names are detected from "json" struct tags, "-" tag (omit field) and "omitempty" modifiers are respected
 //
 // - nil keys/values are always omitted (even without "omitempty")
 //
-// - complex (non-string/string slice/number) keys/values are always omitted
+// - complex (not string/string slice/number) keys/values are always omitted
 //
 // - slice values are serialized as comma-separated strings
 //
