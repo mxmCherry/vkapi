@@ -59,16 +59,38 @@ type responseWrapper struct {
 // Exec calls vk.com API method:
 // https://vk.com/dev/methods
 //
+// Request arg should be either net/url.Values or struct.
+// Other types are silently ignored.
+//
+// Structs are interpreted using the following rules:
+//
+// - param names are detected from "json" struct tags, "-" tag (omit field) and "omitempty" modifiers are respected
+//
+// - nil values are always omitted (even without "omitempty")
+//
+// - chan, func, interface, map, struct and complex values are always omitted
+//
+// - slices are serialized as comma-separated strings
+//
+// - bools are serialized as 1 (true) and 0 (false)
+//
 // Response arg must be a pointer to unmarshal "response" field:
 //   {
 //     "response": {this data will be unmarshalled into response arg}
 //   }
 //
 // Nil response arg may be passed to discard response data.
-func (c *Client) Exec(method string, params url.Values, response interface{}) error {
+func (c *Client) Exec(method string, request interface{}, response interface{}) error {
+	var params url.Values
+	if values, ok := request.(url.Values); ok {
+		params = values
+	} else if request != nil {
+		params = valuesFromStruct(request)
+	}
 	if params == nil {
 		params = make(url.Values, 2)
 	}
+
 	if _, isSet := params["access_token"]; !isSet && c.options.AccessToken != "" {
 		params.Set("access_token", c.options.AccessToken)
 	}

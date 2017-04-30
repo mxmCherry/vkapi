@@ -1,15 +1,13 @@
-package vkapi_test
+package vkapi
 
 import (
 	"net/url"
-
-	"github.com/mxmCherry/vkapi"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("ToParams", func() {
+var _ = Describe("valuesFromStruct", func() {
 	It("should build params from struct", func() {
 		s := "string"
 		d := struct {
@@ -31,7 +29,7 @@ var _ = Describe("ToParams", func() {
 			Pointer:  &s,
 			Nil:      nil,
 		}
-		Expect(vkapi.ToParams(d)).To(Equal(url.Values{
+		Expect(valuesFromStruct(d)).To(Equal(url.Values{
 			"bool_param":     []string{"1"},
 			"string_param":   []string{"string_value"},
 			"number_param":   []string{"42"},

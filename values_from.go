@@ -7,20 +7,28 @@ import (
 	"strings"
 )
 
-// ToParams builds request params from struct.
-// It returns nil params unless arg is not a struct.
+// valuesFromStruct builds request params from struct.
+// Other types are silently ignored and nil is returned.
 //
-// Param names are detected from "json" struct tags,
-// "-" tag (omit field) and "omitempty" modifier are respected.
+// Structs are interpreted using the following rules:
 //
-// Nil values are always omitted (even without "omitempty").
-// Chan, func, interface, map and complex values are also omitted.
+// - param names are detected from "json" struct tags, "-" tag (omit field) and "omitempty" modifiers are respected
 //
-// Slices are serialized as comma-separated strings.
+// - nil values are always omitted (even without "omitempty")
 //
-// Bools are serialized as 1 (true) and 0 (false).
-func ToParams(d interface{}) url.Values {
+// - chan, func, interface, map, struct and complex values are always omitted
+//
+// - slices are serialized as comma-separated strings
+//
+// - bools are serialized as 1 (true) and 0 (false)
+//
+// REMINDER: keep this in sync with Client.Exec method doc.
+func valuesFromStruct(d interface{}) url.Values {
 	rv := dereference(reflect.ValueOf(d))
+	if isEmpty(rv) {
+		return nil
+	}
+
 	rt := rv.Type()
 	if rt.Kind() != reflect.Struct {
 		return nil

@@ -36,12 +36,12 @@ var _ = Describe("Client", func() {
 			Expect(httpClient.url).To(Equal("https://api.vk.com/method/dummy.method"))
 		})
 
-		It("should use provided params", func() {
-			params := url.Values{
+		It("should use provided request", func() {
+			request := url.Values{
 				"param_name": []string{"PARAM_VALUE"},
 			}
 
-			err := subject.Exec("dummy.users.search", params, nil)
+			err := subject.Exec("dummy.users.search", request, nil)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(httpClient.form.Get("param_name")).To(Equal("PARAM_VALUE"))
 		})
@@ -105,22 +105,22 @@ var _ = Describe("Client", func() {
 			})
 
 			It("should allow to override access token for a single request", func() {
-				params := url.Values{
+				request := url.Values{
 					"access_token": []string{"OVERRIDDEN_TOKEN"},
 				}
 
-				err := subject.Exec("dummy.method", params, nil)
+				err := subject.Exec("dummy.method", request, nil)
 				Expect(err).NotTo(HaveOccurred())
 
 				Expect(httpClient.form.Get("access_token")).To(Equal("OVERRIDDEN_TOKEN"))
 			})
 
 			It("should allow to clear access token for a single request", func() {
-				params := url.Values{
+				request := url.Values{
 					"access_token": []string{},
 				}
 
-				err := subject.Exec("dummy.method", params, nil)
+				err := subject.Exec("dummy.method", request, nil)
 				Expect(err).NotTo(HaveOccurred())
 
 				Expect(httpClient.form.Get("access_token")).To(Equal(""))
@@ -138,28 +138,43 @@ var _ = Describe("Client", func() {
 			})
 
 			It("should allow to override version for a single request", func() {
-				params := url.Values{
+				request := url.Values{
 					"v": []string{"99.99"},
 				}
 
-				err := subject.Exec("dummy.method", params, nil)
+				err := subject.Exec("dummy.method", request, nil)
 				Expect(err).NotTo(HaveOccurred())
 
 				Expect(httpClient.form.Get("v")).To(Equal("99.99"))
 			})
 
 			It("should allow to clear version for a single request", func() {
-				params := url.Values{
+				request := url.Values{
 					"v": []string{},
 				}
 
-				err := subject.Exec("dummy.method", params, nil)
+				err := subject.Exec("dummy.method", request, nil)
 				Expect(err).NotTo(HaveOccurred())
 
 				Expect(httpClient.form.Get("v")).To(Equal(""))
 			})
 
 		}) // version context
+
+		Context("request types", func() {
+			It("should use struct request", func() {
+				request := struct {
+					Param string `json:"param_name"`
+				}{
+					Param: "param_value",
+				}
+
+				err := subject.Exec("dummy.method", request, nil)
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(httpClient.form.Get("param_name")).To(Equal("param_value"))
+			})
+		})
 
 	}) // Exec description
 
