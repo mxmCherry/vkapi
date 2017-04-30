@@ -162,6 +162,7 @@ var _ = Describe("Client", func() {
 		}) // version context
 
 		Context("request types", func() {
+
 			It("should use struct request", func() {
 				request := struct {
 					Param string `json:"param_name"`
@@ -174,7 +175,19 @@ var _ = Describe("Client", func() {
 
 				Expect(httpClient.form.Get("param_name")).To(Equal("param_value"))
 			})
-		})
+
+			It("should use map request", func() {
+				request := map[string]interface{}{
+					"param_name": "param_value",
+				}
+
+				err := subject.Exec("dummy.method", request, nil)
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(httpClient.form.Get("param_name")).To(Equal("param_value"))
+			})
+
+		}) // request types context
 
 	}) // Exec description
 
