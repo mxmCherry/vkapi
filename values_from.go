@@ -93,13 +93,13 @@ func valuesFromMap(rv reflect.Value) url.Values {
 	q := url.Values{}
 
 	for _, k := range rv.MapKeys() {
-		v := getValue(rv.MapIndex(k))
-		if omitValue(v) {
+		k = getValue(k)
+		if omitKey(k) {
 			continue
 		}
 
-		k = getValue(k)
-		if omitKey(k) {
+		v := getValue(rv.MapIndex(k))
+		if omitValue(v) {
 			continue
 		}
 
