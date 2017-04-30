@@ -36,7 +36,7 @@ func main() {
 	// instantiate API client:
 	vk := vkapi.New(vkapi.Options{
 		AccessToken: "YOUR_ACCESS_TOKEN", // https://vk.com/dev/access_token
-		Version:     "5.62",              // https://vk.com/dev/versions
+		Version:     "5.63",              // https://vk.com/dev/versions
 	})
 
 	// prepare API request params:
@@ -50,7 +50,7 @@ func main() {
 	res := new(UsersGetResponse)
 
 	// execute users.get API method: https://vk.com/dev/users.get
-	err := vk.Exec("users.get", vkapi.ToParams(req), res)
+	err := vk.Exec("users.get", req, res)
 	if err != nil {
 		// process returned API error: https://vk.com/dev/errors
 		if vkErr, ok := err.(vkapi.Error); ok {
