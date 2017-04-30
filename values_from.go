@@ -7,54 +7,53 @@ import (
 	"strings"
 )
 
-// valuesFromStruct builds request params from struct.
+// valuesFrom builds request params from struct or map.
 // Other types are silently ignored and nil is returned.
 //
-// Structs are interpreted using the following rules:
+// Rules:
 //
 // - param names are detected from "json" struct tags, "-" tag (omit field) and "omitempty" modifiers are respected
 //
-// - nil values are always omitted (even without "omitempty")
+// - nil keys/values are always omitted (even without "omitempty")
 //
-// - chan, func, interface, map, struct and complex values are always omitted
+// - complex (non-string/string slice/number) keys/values are always omitted
 //
-// - slices are serialized as comma-separated strings
+// - slice values are serialized as comma-separated strings
 //
 // - bools are serialized as 1 (true) and 0 (false)
 //
 // REMINDER: keep this in sync with Client.Exec method doc.
-func valuesFromStruct(d interface{}) url.Values {
-	rv := dereference(reflect.ValueOf(d))
+func valuesFrom(d interface{}) url.Values {
+	rv := getValue(reflect.ValueOf(d))
 	if isEmpty(rv) {
 		return nil
 	}
 
-	rt := rv.Type()
-	if rt.Kind() != reflect.Struct {
+	switch rv.Type().Kind() {
+
+	case reflect.Struct:
+		return valuesFromStruct(rv)
+
+	case reflect.Map:
+		return valuesFromMap(rv)
+
+	default:
 		return nil
 	}
+}
+
+// ----------------------------------------------------------------------------
+
+// valuesFromStruct builds request params from struct.
+func valuesFromStruct(rv reflect.Value) url.Values {
+	rt := rv.Type()
 
 	q := url.Values{}
 	for i, nf := 0, rt.NumField(); i < nf; i++ {
 		f := rt.Field(i)
-		v := dereference(rv.Field(i))
-		vk := v.Kind()
+		v := getValue(rv.Field(i))
 
-		// omit unsupported (unserializable) params:
-		switch vk {
-		case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map,
-			reflect.Uintptr, reflect.UnsafePointer,
-			reflect.Complex64, reflect.Complex128:
-			continue
-		}
-
-		// omit nil slices:
-		if vk == reflect.Slice && v.IsNil() {
-			continue
-		}
-
-		// omit invalid params (value of nil pointer etc):
-		if !v.IsValid() {
+		if omitValue(v) {
 			continue
 		}
 
@@ -89,6 +88,39 @@ func valuesFromStruct(d interface{}) url.Values {
 	return q
 }
 
+// valuesFromMap builds request params from map.
+func valuesFromMap(rv reflect.Value) url.Values {
+	q := url.Values{}
+
+	for _, k := range rv.MapKeys() {
+		v := getValue(rv.MapIndex(k))
+		if omitValue(v) {
+			continue
+		}
+
+		k = getValue(k)
+		if omitKey(k) {
+			continue
+		}
+
+		q.Set(toString(k), toString(v))
+	}
+
+	return q
+}
+
+// ----------------------------------------------------------------------------
+
+// getValue extracts actual data, defeferencing pointer chain if needed.
+// Mostly useful to resolve actual interface value.
+func getValue(rv reflect.Value) reflect.Value {
+	rv = dereference(rv)
+	if rv.Kind() == reflect.Interface {
+		rv = getValue(reflect.ValueOf(rv.Interface()))
+	}
+	return rv
+}
+
 // dereference dereferences pointer chain.
 func dereference(rv reflect.Value) reflect.Value {
 	for rv.Kind() == reflect.Ptr {
@@ -99,7 +131,6 @@ func dereference(rv reflect.Value) reflect.Value {
 
 // toString stringifies value.
 func toString(rv reflect.Value) string {
-	rv = dereference(rv)
 	if isEmpty(rv) {
 		return ""
 	}
@@ -142,4 +173,52 @@ func isEmpty(rv reflect.Value) bool {
 	}
 
 	return reflect.DeepEqual(rv.Interface(), zero.Interface())
+}
+
+// ----------------------------------------------------------------------------
+
+// omitKey tells if key should be omited (not serialized).
+func omitKey(rv reflect.Value) bool {
+	switch rv.Kind() {
+
+	case reflect.Slice:
+		return true
+
+	default:
+		return omitValue(rv)
+	}
+}
+
+// omitValue tells if value should be omited (not serialized).
+func omitValue(rv reflect.Value) bool {
+	vk := rv.Kind()
+
+	// omit unsupported (unserializable) params:
+	switch vk {
+	case reflect.Invalid,
+		reflect.Uintptr,
+		reflect.Complex64,
+		reflect.Complex128,
+		reflect.Array,
+		reflect.Chan,
+		reflect.Func,
+		reflect.Interface,
+		reflect.Map,
+		reflect.Ptr,
+		reflect.Struct,
+		reflect.UnsafePointer:
+		return true
+	}
+
+	// omit nil slices:
+	if (vk == reflect.Slice || vk == reflect.Array) && rv.IsNil() {
+		return true
+	}
+
+	// omit invalid params (value of nil pointer etc):
+	if !rv.IsValid() {
+		return true
+	}
+
+	return false
 }

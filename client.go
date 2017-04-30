@@ -59,18 +59,18 @@ type responseWrapper struct {
 // Exec calls vk.com API method:
 // https://vk.com/dev/methods
 //
-// Request arg should be either net/url.Values or struct.
+// Request arg should be either net/url.Values, map with simple keys (strings/numbers) or struct.
 // Other types are silently ignored.
 //
 // Structs are interpreted using the following rules:
 //
 // - param names are detected from "json" struct tags, "-" tag (omit field) and "omitempty" modifiers are respected
 //
-// - nil values are always omitted (even without "omitempty")
+// - nil keys/values are always omitted (even without "omitempty")
 //
-// - chan, func, interface, map, struct and complex values are always omitted
+// - complex (non-string/string slice/number) keys/values are always omitted
 //
-// - slices are serialized as comma-separated strings
+// - slice values are serialized as comma-separated strings
 //
 // - bools are serialized as 1 (true) and 0 (false)
 //
@@ -85,7 +85,7 @@ func (c *Client) Exec(method string, request interface{}, response interface{}) 
 	if values, ok := request.(url.Values); ok {
 		params = values
 	} else if request != nil {
-		params = valuesFromStruct(request)
+		params = valuesFrom(request)
 	}
 	if params == nil {
 		params = make(url.Values, 2)

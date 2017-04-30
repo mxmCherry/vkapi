@@ -7,7 +7,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("valuesFromStruct", func() {
+var _ = Describe("valuesFrom", func() {
+
 	It("should build params from struct", func() {
 		s := "string"
 		d := struct {
@@ -29,7 +30,7 @@ var _ = Describe("valuesFromStruct", func() {
 			Pointer:  &s,
 			Nil:      nil,
 		}
-		Expect(valuesFromStruct(d)).To(Equal(url.Values{
+		Expect(valuesFrom(d)).To(Equal(url.Values{
 			"bool_param":     []string{"1"},
 			"string_param":   []string{"string_value"},
 			"number_param":   []string{"42"},
@@ -37,4 +38,30 @@ var _ = Describe("valuesFromStruct", func() {
 			"pointer_param":  []string{"string"},
 		}))
 	})
+
+	It("should build params from map", func() {
+		s := "string"
+		d := map[string]interface{}{
+			"bool_param":     true,
+			"string_param":   "string_value",
+			"number_param":   42,
+			"repeated_param": []uint64{1, 2, 3},
+			"pointer_param":  &s,
+			"nil_param":      nil,
+		}
+		Expect(valuesFrom(d)).To(Equal(url.Values{
+			"bool_param":     []string{"1"},
+			"string_param":   []string{"string_value"},
+			"number_param":   []string{"42"},
+			"repeated_param": []string{"1,2,3"},
+			"pointer_param":  []string{"string"},
+		}))
+	})
+
+	It("should ignore unsupported types", func() {
+		Expect(valuesFrom(nil)).To(BeNil())
+		Expect(valuesFrom(42)).To(BeNil())
+		Expect(valuesFrom("string")).To(BeNil())
+	})
+
 })
