@@ -177,7 +177,7 @@ func isEmpty(rv reflect.Value) bool {
 
 // ----------------------------------------------------------------------------
 
-// omitKey tells if key should be omited (not serialized).
+// omitKey tells if key should be omitted (not serialized).
 func omitKey(rv reflect.Value) bool {
 	switch rv.Kind() {
 
@@ -189,7 +189,7 @@ func omitKey(rv reflect.Value) bool {
 	}
 }
 
-// omitValue tells if value should be omited (not serialized).
+// omitValue tells if value should be omitted (not serialized).
 func omitValue(rv reflect.Value) bool {
 	vk := rv.Kind()
 
