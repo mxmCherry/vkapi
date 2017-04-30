@@ -16,13 +16,13 @@ import (
 //
 // - nil keys/values are always omitted (even without "omitempty")
 //
-// - complex (non-string/string slice/number) keys/values are always omitted
+// - complex (not string/string slice/number) keys/values are always omitted
 //
 // - slice values are serialized as comma-separated strings
 //
 // - bools are serialized as 1 (true) and 0 (false)
 //
-// REMINDER: keep this in sync with Client.Exec method doc.
+// REMINDER: keep rules in sync with Client.Exec method doc.
 func valuesFrom(d interface{}) url.Values {
 	rv := getValue(reflect.ValueOf(d))
 	if isEmpty(rv) {
