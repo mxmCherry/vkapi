@@ -85,7 +85,7 @@ func (c *Client) Exec(method string, request interface{}, response interface{}) 
 	if values, ok := request.(url.Values); ok {
 		params = values
 	} else if request != nil {
-		params = valuesFrom(request)
+		params = paramsFrom(request)
 	}
 	if params == nil {
 		params = make(url.Values, 2)

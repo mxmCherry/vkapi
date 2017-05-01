@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// valuesFrom builds request params from struct or map.
+// paramsFrom builds request params from struct or map.
 // Other types are silently ignored and nil is returned.
 //
 // Rules:
@@ -23,7 +23,7 @@ import (
 // - bools are serialized as 1 (true) and 0 (false)
 //
 // REMINDER: keep rules in sync with Client.Exec method doc.
-func valuesFrom(d interface{}) url.Values {
+func paramsFrom(d interface{}) url.Values {
 	rv := getValue(reflect.ValueOf(d))
 	if isEmpty(rv) {
 		return nil
@@ -32,10 +32,10 @@ func valuesFrom(d interface{}) url.Values {
 	switch rv.Type().Kind() {
 
 	case reflect.Struct:
-		return valuesFromStruct(rv)
+		return paramsFromStruct(rv)
 
 	case reflect.Map:
-		return valuesFromMap(rv)
+		return paramsFromMap(rv)
 
 	default:
 		return nil
@@ -44,8 +44,8 @@ func valuesFrom(d interface{}) url.Values {
 
 // ----------------------------------------------------------------------------
 
-// valuesFromStruct builds request params from struct.
-func valuesFromStruct(rv reflect.Value) url.Values {
+// paramsFromStruct builds request params from struct.
+func paramsFromStruct(rv reflect.Value) url.Values {
 	rt := rv.Type()
 
 	q := url.Values{}
@@ -88,8 +88,8 @@ func valuesFromStruct(rv reflect.Value) url.Values {
 	return q
 }
 
-// valuesFromMap builds request params from map.
-func valuesFromMap(rv reflect.Value) url.Values {
+// paramsFromMap builds request params from map.
+func paramsFromMap(rv reflect.Value) url.Values {
 	q := url.Values{}
 
 	for _, k := range rv.MapKeys() {
