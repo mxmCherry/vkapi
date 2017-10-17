@@ -111,7 +111,7 @@ func paramsFromMap(rv reflect.Value) url.Values {
 
 // ----------------------------------------------------------------------------
 
-// getValue extracts actual data, defeferencing pointer chain if needed.
+// getValue extracts actual data, dereferencing pointer chain if needed.
 // Mostly useful to resolve actual interface value.
 func getValue(rv reflect.Value) reflect.Value {
 	rv = dereference(rv)
